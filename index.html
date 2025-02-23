@@ -48,7 +48,7 @@
         <button id="enc" class="normal_button" style="background-color: #4f1787;color:#fff;">混淆</button>
         <button id="dec" class="normal_button" style="background-color: #eb3678;color:#fff;">解混淆</button>
         <button id="re" class="normal_button" style="background-color: #fb773c;color:#fff;">还原</button>
-	    <button id="save" class="normal_button" style="background-color: #1eba14;color:#fff;">保存</button>
+	 //   <button id="save" class="normal_button" style="background-color: #1eba14;color:#fff;">保存</button>
     </div>
     <div class="image-container" id="image-container">
     </div>
@@ -218,64 +218,64 @@ btn_save.onclick = () => {
     });
 };
 
-// 保存函数改造
-const saveImage = (() => {
-  let counter = 0;
-  return (imgSrc, fileName) => {
-    const link = document.createElement('a');
-    link.href = imgSrc;
-    link.download = fileName;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => document.body.removeChild(link), 1000);
-  };
-})();
+// // 保存函数改造
+// const saveImage = (() => {
+//   let counter = 0;
+//   return (imgSrc, fileName) => {
+//     const link = document.createElement('a');
+//     link.href = imgSrc;
+//     link.download = fileName;
+//     link.style.display = 'none';
+//     document.body.appendChild(link);
+//     link.click();
+//     setTimeout(() => document.body.removeChild(link), 1000);
+//   };
+// })();
 
-// 替换原有保存逻辑
-btn_save.onclick = async () => {
-  const images = Array.from(imageContainer.querySelectorAll('img'));
+// // 替换原有保存逻辑
+// btn_save.onclick = async () => {
+//   const images = Array.from(imageContainer.querySelectorAll('img'));
   
-  // 申请存储权限（Android）
-  if (window.cordova && cordova.plugins.permissions) {
-    const status = await new Promise(res => 
-      cordova.plugins.permissions.requestPermission(
-        cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, 
-        res
-      )
-    );
-    if (!status.hasPermission) return;
-  }
+//   // 申请存储权限（Android）
+//   if (window.cordova && cordova.plugins.permissions) {
+//     const status = await new Promise(res => 
+//       cordova.plugins.permissions.requestPermission(
+//         cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, 
+//         res
+//       )
+//     );
+//     if (!status.hasPermission) return;
+//   }
 
-  // 创建目标目录
-  const folderPath = cordova.file.externalRootDirectory + "encryption/";
-  await new Promise((resolve, reject) => 
-    window.resolveLocalFileSystemURL(folderPath, 
-      () => resolve(), 
-      () => DirectoryEntry.getDirectory(folderPath, {create: true}, resolve, reject)
-    )
-  );
+//   // 创建目标目录
+//   const folderPath = cordova.file.externalRootDirectory + "encryption/";
+//   await new Promise((resolve, reject) => 
+//     window.resolveLocalFileSystemURL(folderPath, 
+//       () => resolve(), 
+//       () => DirectoryEntry.getDirectory(folderPath, {create: true}, resolve, reject)
+//     )
+//   );
 
-  // 批量保存
-  for (const img of images) {
-    const filename = img.dataset.originalName || `image_${Date.now()}.jpg`;
-    const blob = await fetch(img.src).then(r => r.blob());
+//   // 批量保存
+//   for (const img of images) {
+//     const filename = img.dataset.originalName || `image_${Date.now()}.jpg`;
+//     const blob = await fetch(img.src).then(r => r.blob());
     
-    await new Promise((resolve, reject) => {
-      window.resolveLocalFileSystemURL(folderPath, dir => {
-        dir.getFile(filename, {create: true}, fileEntry => {
-          fileEntry.createWriter(writer => {
-            writer.onwriteend = resolve;
-            writer.onerror = reject;
-            writer.write(blob);
-          }, reject);
-        }, reject);
-      }, reject);
-    });
-  }
+//     await new Promise((resolve, reject) => {
+//       window.resolveLocalFileSystemURL(folderPath, dir => {
+//         dir.getFile(filename, {create: true}, fileEntry => {
+//           fileEntry.createWriter(writer => {
+//             writer.onwriteend = resolve;
+//             writer.onerror = reject;
+//             writer.write(blob);
+//           }, reject);
+//         }, reject);
+//       }, reject);
+//     });
+//   }
   
-  alert(`已保存 ${images.length} 张图片至 /encryption 目录`);
-};
+//   alert(`已保存 ${images.length} 张图片至 /encryption 目录`);
+// };
 
 
 
