@@ -18,6 +18,10 @@
             position: relative;
             vertical-align: middle;
         }
+                /* 在现有style标签内添加 */
+        .image-container {
+        margin-top: 20px;  /* 控制间距大小 */
+        }
         .ipt_btn{
             position:absolute;
             left:0;
@@ -40,7 +44,7 @@
     <div style="display: inline-block; max-width: 400px;">
         基于空间填充曲线的新一代图片混淆。混淆算法保持像素的空间相关性，混淆图被压缩仍能保持色彩。仅供技术交流使用。此程序生成的图片格式为jpeg，质量0.95。
     </div>
-    <div>
+    <div style="margin-bottom: 20px;">
         <span class="normal_button" style="background-color: #180161;color:#fff;">
             选择图片
             <input type="file" accept="image/*" id="ipt" class="ipt_btn" multiple>
@@ -48,40 +52,29 @@
         <button id="enc" class="normal_button" style="background-color: #4f1787;color:#fff;">混淆</button>
         <button id="dec" class="normal_button" style="background-color: #eb3678;color:#fff;">解混淆</button>
         <button id="re" class="normal_button" style="background-color: #fb773c;color:#fff;">还原</button>
-
+	        <br> 
     </div>
     <div class="image-container" id="image-container">
     </div>
 </div>
 <script>
-    // function gilbert2d(width, height) {
-    //     /**
-    //      * Generalized Hilbert ('gilbert') space-filling curve for arbitrary-sized
-    //      * 2D rectangular grids. Generates discrete 2D coordinates to fill a rectangle
-    //      * of size (width x height).
-    //      */
-    //     const coordinates = [];
     
-    //     if (width >= height) {
-    //         generate2d(0, 0, width, 0, 0, height, coordinates);
-    //     } else {
-    //         generate2d(0, 0, 0, height, width, 0, coordinates);
-    //     }
-    
-    //     return coordinates;
-    // }
     function gilbert2d(width, height) {
-    // 替换原有递归实现为基于栈的迭代算法
-    const stack = [];
-    const coordinates = [];
-    stack.push({x:0, y:0, ax:width, ay:0, bx:0, by:height});
-
-    while(stack.length > 0){
-        const {x, y, ax, ay, bx, by} = stack.pop();
-        // 原有递归逻辑改为循环处理...
+        /**
+         * Generalized Hilbert ('gilbert') space-filling curve for arbitrary-sized
+         * 2D rectangular grids. Generates discrete 2D coordinates to fill a rectangle
+         * of size (width x height).
+         */
+        const coordinates = [];
+    
+        if (width >= height) {
+            generate2d(0, 0, width, 0, 0, height, coordinates);
+        } else {
+            generate2d(0, 0, 0, height, width, 0, coordinates);
+        }
+    
+        return coordinates;
     }
-    return coordinates;
-}
     
     function generate2d(x, y, ax, ay, bx, by, coordinates) {
         const w = Math.abs(ax + ay);
@@ -149,11 +142,9 @@
         const width = cvs.width = img.width
         const height = cvs.height = img.height
         const ctx = cvs.getContext("2d")
-        const imageContainer = document.getElementById('image-container'); // 匹配HTML中的 id="image-container"
-        const ipt = document.getElementById('ipt'); // 匹配HTML中的 id="ipt"
-        const btn_save = document.getElementById('save');
-        const type = img.dataset.originalType || 'image/jpeg';
-        const quality = type === 'image/jpeg' ? 0.95 : 1.0;
+        const imageContainer = document.getElementById('imageContainer');
+        const ipt = document.getElementById('fileInput');
+        // const btn_save = document.getElementById('save');
         ctx.drawImage(img, 0, 0)
         const imgdata = ctx.getImageData(0, 0, width, height)
         const imgdata2 = new ImageData(width, height)
@@ -172,15 +163,13 @@
             URL.revokeObjectURL(img.src)
             img.src = src
             img.style.display = "inline-block"
-        }, type, quality)
+        }, "image/jpeg", 0.95)
     }
     function decrypt(img){
         const cvs = document.createElement("canvas")
         const width = cvs.width = img.width
         const height = cvs.height = img.height
         const ctx = cvs.getContext("2d")
-        const type = img.dataset.originalType || 'image/jpeg';
-        const quality = type === 'image/jpeg' ? 0.95 : 1.0;
         ctx.drawImage(img, 0, 0)
         const imgdata = ctx.getImageData(0, 0, width, height)
         const imgdata2 = new ImageData(width, height)
@@ -199,11 +188,43 @@
             URL.revokeObjectURL(img.src)
             img.src = src
             img.style.display = "inline-block"
-        }, type, quality)
+        }, "image/jpeg", 0.95)
     }
 
+    const imageContainer = document.getElementById("image-container");
 
+    function displayImages(files) {
+        imageContainer.innerHTML = ''; 
+        Array.from(files).forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'image-item';
+            imageContainer.appendChild(img);
+        });
+    }
 
+    const ipt = document.getElementById("ipt");
+    ipt.onchange = () => {
+        displayImages(ipt.files);
+    };
+    const btn_save = document.getElementById("save");
+// btn_save.onclick = () => {
+//     const images = imageContainer.querySelectorAll('img');
+//     images.forEach((img, index) => {
+//         const currentTimestamp = new Date().getTime();
+//         const fileName = `image-${index}-${currentTimestamp}.jpg`;
+//         saveImage(img.src, fileName); 
+//     });
+// };
+
+// function saveImage(imgSrc, fileName) {
+//     const link = document.createElement('a');
+//     link.href = imgSrc;
+//     link.download = fileName; // 使用提供的文件名
+//     document.body.appendChild(link); 
+//     link.click();
+//     document.body.removeChild(link); 
+// }
 
 
 
@@ -217,14 +238,14 @@
 //     document.body.removeChild(link); 
 // }
 
-btn_save.onclick = () => {
-    const images = imageContainer.querySelectorAll('img');
-    images.forEach((img, index) => {
-        const currentTimestamp = new Date().getTime();
-        const fileName = `image-${currentTimestamp}.jpg`;
-        saveImage(img.src, fileName); 
-    });
-};
+// btn_save.onclick = () => {
+//     const images = imageContainer.querySelectorAll('img');
+//     images.forEach((img, index) => {
+//         const currentTimestamp = new Date().getTime();
+//         const fileName = `image-${currentTimestamp}.jpg`;
+//         saveImage(img.src, fileName); 
+//     });
+// };
     function encryptImages() {
         const images = imageContainer.querySelectorAll('img');
         images.forEach((img, index) => {
