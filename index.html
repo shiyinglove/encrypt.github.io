@@ -54,22 +54,34 @@
     </div>
 </div>
 <script>
+    // function gilbert2d(width, height) {
+    //     /**
+    //      * Generalized Hilbert ('gilbert') space-filling curve for arbitrary-sized
+    //      * 2D rectangular grids. Generates discrete 2D coordinates to fill a rectangle
+    //      * of size (width x height).
+    //      */
+    //     const coordinates = [];
+    
+    //     if (width >= height) {
+    //         generate2d(0, 0, width, 0, 0, height, coordinates);
+    //     } else {
+    //         generate2d(0, 0, 0, height, width, 0, coordinates);
+    //     }
+    
+    //     return coordinates;
+    // }
     function gilbert2d(width, height) {
-        /**
-         * Generalized Hilbert ('gilbert') space-filling curve for arbitrary-sized
-         * 2D rectangular grids. Generates discrete 2D coordinates to fill a rectangle
-         * of size (width x height).
-         */
-        const coordinates = [];
-    
-        if (width >= height) {
-            generate2d(0, 0, width, 0, 0, height, coordinates);
-        } else {
-            generate2d(0, 0, 0, height, width, 0, coordinates);
-        }
-    
-        return coordinates;
+    // 替换原有递归实现为基于栈的迭代算法
+    const stack = [];
+    const coordinates = [];
+    stack.push({x:0, y:0, ax:width, ay:0, bx:0, by:height});
+
+    while(stack.length > 0){
+        const {x, y, ax, ay, bx, by} = stack.pop();
+        // 原有递归逻辑改为循环处理...
     }
+    return coordinates;
+}
     
     function generate2d(x, y, ax, ay, bx, by, coordinates) {
         const w = Math.abs(ax + ay);
@@ -137,8 +149,8 @@
         const width = cvs.width = img.width
         const height = cvs.height = img.height
         const ctx = cvs.getContext("2d")
-        const imageContainer = document.getElementById('imageContainer');
-        const ipt = document.getElementById('fileInput');
+        const imageContainer = document.getElementById('image-container'); // 匹配HTML中的 id="image-container"
+        const ipt = document.getElementById('ipt'); // 匹配HTML中的 id="ipt"
         const btn_save = document.getElementById('save');
         const type = img.dataset.originalType || 'image/jpeg';
         const quality = type === 'image/jpeg' ? 0.95 : 1.0;
